@@ -17,7 +17,8 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         // Encaminha os pacotes do WebRTC para os celulares conectados
         wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
+            if (client !== ws && client.readyState === 1) {
+
                 client.send(message);
             }
         });
