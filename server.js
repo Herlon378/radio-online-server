@@ -1,27 +1,22 @@
-const WebSocket = require("ws");
+const WebSocket = require('ws');
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 8080;
 
-const wss = new WebSocket.Server({
-  port: PORT
+const wss = new WebSocket.Server({ port: PORT }, () => {
+    console.log(`Servidor de rádio rodando na porta ${PORT}`);
 });
 
-console.log("Servidor iniciado");
+wss.on('connection', (ws) => {
+    console.log('Novo celular conectado!');
 
-wss.on("connection", ws => {
-
-  console.log("Usuário conectado");
-
-  ws.on("message", msg => {
-
-    wss.clients.forEach(client => {
-
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(msg.toString());
-      }
-
+    ws.on('message', (message) => {
+        // Envia o pedacinho de áudio para todos os outros celulares conectados
+        wss.clients.forEach((client) => {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(message);
+            }
+        });
     });
 
-  });
-
+    ws.on('close', () => console.log('Celular desconectado.'));
 });
